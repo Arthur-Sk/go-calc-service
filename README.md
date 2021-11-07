@@ -1,4 +1,4 @@
-##Calc Service
+## Calc Service
 ### Technologies used:
 * GoLang
 * gRPC
