@@ -1,0 +1,11 @@
+version: '3.7'
+services:
+  go-grpc:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: golang.grpc-service
+#    ports:
+#      - "8087:80"
+    networks:
+      - default
