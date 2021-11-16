@@ -3,9 +3,13 @@ services:
   go-grpc:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: Dockerfile
     container_name: golang.grpc-service
 #    ports:
 #      - "8087:80"
     networks:
       - default
+    volumes:
+      - ./:/go/src/grpc-service
+    environment:
+      GOPATH: "/go:/go/src/grpc-service"
