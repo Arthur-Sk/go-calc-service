@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"grpc-service/greet/greetpb"
 	"log"
@@ -12,8 +13,19 @@ import (
 type server struct {
 }
 
+func (*server) Greet(ctx context.Context, req *greetpb.GreetRequest) (*greetpb.GreetResponse, error) {
+	fmt.Printf("Greet function was invoked with %v \n", req)
+
+	firstName := req.GetGreeting().GetFirstName()
+	result := "Hello " + firstName
+	response := &greetpb.GreetResponse{
+		Result: result,
+	}
+
+	return response, nil
+}
+
 func main() {
-	fmt.Println("Hello world")
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
