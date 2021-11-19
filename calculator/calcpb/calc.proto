@@ -3,14 +3,23 @@ syntax = "proto3";
 package calc;
 option go_package="./calculator/calcpb";
 
-message CalcActionReq {
+message SumActionReq {
     repeated int32 terms = 1;
 }
 
-message CalcActionResp {
+message SumActionResp {
     int64 sum = 1;
 }
 
+message PrimeNumberDecomposeReq {
+    int64 target = 1;
+}
+
+message PrimeNumberDecomposeResp {
+    int64 component = 1;
+}
+
 service CalcService {
-    rpc Sum(CalcActionReq) returns (CalcActionResp) {};
+    rpc Sum(SumActionReq) returns (SumActionResp) {};
+    rpc DecomposeToPrime(PrimeNumberDecomposeReq) returns (stream PrimeNumberDecomposeResp);
 }

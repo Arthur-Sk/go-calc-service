@@ -8,7 +8,7 @@ import (
 func main() {
 	fmt.Println("Starting sleep...")
 
-	time.Sleep(1200 * time.Second)
+	time.Sleep(12000 * time.Second)
 
 	fmt.Println("Sleep's over...")
 }

@@ -10,3 +10,4 @@ sh:
 	docker-compose exec go-grpc sh
 generate:
 	docker-compose exec go-grpc sh -c "cd src/grpc-service && protoc greet/greetpb/greet.proto --go_out=plugins=grpc:."
+	docker-compose exec go-grpc sh -c "cd src/grpc-service && protoc calculator/calcpb/calc.proto --go_out=plugins=grpc:."
