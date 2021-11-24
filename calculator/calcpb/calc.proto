@@ -19,7 +19,16 @@ message PrimeNumberDecomposeResp {
     int64 component = 1;
 }
 
+message ComputeAverageRequest {
+    int64 member = 1;
+}
+
+message ComputeAverageResponse {
+    double average = 1;
+}
+
 service CalcService {
     rpc Sum(SumActionReq) returns (SumActionResp) {};
     rpc DecomposeToPrime(PrimeNumberDecomposeReq) returns (stream PrimeNumberDecomposeResp);
+    rpc ComputeAverage(stream ComputeAverageRequest) returns (ComputeAverageResponse);
 }

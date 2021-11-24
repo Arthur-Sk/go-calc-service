@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"grpc-service/calculator/calcpb"
@@ -22,7 +23,8 @@ func main() {
 	c := calcpb.NewCalcServiceClient(cc)
 
 	//doUnary(c)
-	decompose(c)
+	//decompose(c)
+	calcAverage(c)
 }
 
 func decompose(c calcpb.CalcServiceClient) {
@@ -68,4 +70,37 @@ func doUnary(c calcpb.CalcServiceClient) {
 	}
 
 	log.Printf("The sum of %d and %d is: %v", first, second, resp.Sum)
+}
+
+func calcAverage(c calcpb.CalcServiceClient) {
+	rand.Seed(time.Now().UnixNano())
+	iterations := rand.Intn(10)
+
+	stream, err := c.ComputeAverage(context.Background())
+	if err != nil {
+		log.Fatalf("Error while calling ComputeAverage: %v", err)
+	}
+
+	requests := []*calcpb.ComputeAverageRequest{}
+	for i := 0; i < iterations; i++ {
+		requests = append(requests, &calcpb.ComputeAverageRequest{
+			Member: int64(rand.Intn(100)),
+		})
+	}
+
+	fmt.Printf("Requests: %v", requests)
+
+	// Send messages
+	for _, req := range requests {
+		fmt.Printf("Sending req: %v\n", req)
+		stream.Send(req)
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	resp, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("Error while receiving response from server: %v", err)
+	}
+
+	fmt.Printf("Average received: %f", resp.Average)
 }

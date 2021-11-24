@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"grpc-service/calculator/calcpb"
+	"io"
 	"log"
 	"net"
 	"time"
@@ -58,6 +59,33 @@ func (*server) decomposeToPrime(target int64, ch chan int64) {
 	}
 
 	close(ch)
+}
+
+func (*server) ComputeAverage(stream calcpb.CalcService_ComputeAverageServer) error {
+	var numbers []int64
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			// The client stream has been finished
+			return stream.SendAndClose(&calcpb.ComputeAverageResponse{
+				Average: calcAverage(numbers),
+			})
+		}
+		if err != nil {
+			log.Fatalf("Error while reading client stream: %v", err)
+		}
+
+		numbers = append(numbers, req.Member)
+	}
+}
+
+func calcAverage(numbers []int64) float64 {
+	var total int64 = 0
+	for _, number := range numbers {
+		total += number
+	}
+
+	return float64(total) / float64(len(numbers))
 }
 
 func main() {
