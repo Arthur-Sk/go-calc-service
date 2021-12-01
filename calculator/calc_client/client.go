@@ -24,7 +24,8 @@ func main() {
 
 	//doUnary(c)
 	//decompose(c)
-	calcAverage(c)
+	//calcAverage(c)
+	findMax(c)
 }
 
 func decompose(c calcpb.CalcServiceClient) {
@@ -103,4 +104,52 @@ func calcAverage(c calcpb.CalcServiceClient) {
 	}
 
 	fmt.Printf("Average received: %f", resp.Average)
+}
+
+func findMax(c calcpb.CalcServiceClient) {
+	stream, err := c.FindMaximum(context.Background())
+	if err != nil {
+		log.Fatalf("Error while calling FindMaximum: %v", err)
+	}
+
+	iterations := rand.Intn(25)
+
+	requests := []*calcpb.FindMaximumRequest{}
+	for i := 0; i < iterations; i++ {
+		requests = append(requests, &calcpb.FindMaximumRequest{
+			Num: int64(rand.Intn(100000)),
+		})
+	}
+
+	waitC := make(chan struct{})
+
+	// Block until everything is done
+	defer func() {
+		<-waitC
+	}()
+
+	go func() {
+		for _, req := range requests {
+			fmt.Printf("Sending message: %v\n", req)
+			stream.Send(req)
+			time.Sleep(500 * time.Millisecond)
+		}
+
+		stream.CloseSend()
+	}()
+
+	go func() {
+		for {
+			res, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalf("Error while receiving: %v", err)
+			}
+			fmt.Printf("received: %v\n", res)
+		}
+
+		close(waitC)
+	}()
 }

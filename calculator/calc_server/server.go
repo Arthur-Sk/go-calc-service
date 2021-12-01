@@ -88,6 +88,43 @@ func calcAverage(numbers []int64) float64 {
 	return float64(total) / float64(len(numbers))
 }
 
+func (*server) FindMaximum(stream calcpb.CalcService_FindMaximumServer) error {
+	var numbers []int64
+
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			log.Fatalf("Error while reading client stream: %v", err)
+		}
+
+		numbers = append(numbers, req.GetNum())
+		sendingErr := stream.Send(&calcpb.FindMaximumResponse{
+			MaxNum: findMax(numbers),
+		})
+		if sendingErr != nil {
+			log.Fatalf("Error while sending response to client stream: %v", sendingErr)
+		}
+	}
+}
+
+func findMax(numbers []int64) int64 {
+	if 0 == len(numbers) {
+		log.Fatalf("Cannot find maxNum in empty array")
+	}
+
+	maxNum := numbers[0]
+	for _, number := range numbers {
+		if number > maxNum {
+			maxNum = number
+		}
+	}
+
+	return maxNum
+}
+
 func main() {
 	lis, err := net.Listen("tcp", "0.0.0.0:50052")
 	if err != nil {
