@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
-	status2 "google.golang.org/grpc/status"
+	"google.golang.org/grpc/status"
 	"grpc-service/calculator/calcpb"
 	"io"
 	"log"
@@ -103,7 +103,7 @@ func doSquareRootCall(num int64, c calcpb.CalcServiceClient) {
 		return
 	}
 
-	respErr, ok := status2.FromError(err)
+	respErr, ok := status.FromError(err)
 	if false == ok {
 		log.Fatalf("Fatal error while calling SquareRoot RPC: %v", err)
 	}

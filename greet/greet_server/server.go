@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"grpc-service/greet/greetpb"
 	"io"
 	"log"
@@ -88,6 +90,29 @@ func (*server) GreetEveryone(stream greetpb.GreetService_GreetEveryoneServer) er
 			log.Fatalf("Error while sending response to client stream: %v", sendingErr)
 		}
 	}
+}
+
+func (*server) GreetWithDeadline(ctx context.Context, req *greetpb.GreetWithDeadlineRequest) (*greetpb.GreetWithDeadlineResponse, error) {
+	fmt.Printf("GreetWithDeadline function was invoked with %v \n", req)
+
+	for i := 0; i < 3; i++ {
+		if ctx.Err() == context.Canceled {
+			msg := "The client canceled the request"
+			fmt.Println(msg)
+
+			return nil, status.Error(codes.Canceled, msg)
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+
+	firstName := req.GetGreeting().GetFirstName()
+	result := "Hello " + firstName
+	response := &greetpb.GreetWithDeadlineResponse{
+		Result: result,
+	}
+
+	return response, nil
 }
 
 func main() {
