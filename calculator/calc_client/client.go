@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	status2 "google.golang.org/grpc/status"
 	"grpc-service/calculator/calcpb"
 	"io"
 	"log"
@@ -25,7 +27,9 @@ func main() {
 	//doUnary(c)
 	//decompose(c)
 	//calcAverage(c)
-	findMax(c)
+	//findMax(c)
+	doErrorUnary(c)
+	doSquareRootUnary(c)
 }
 
 func decompose(c calcpb.CalcServiceClient) {
@@ -67,10 +71,49 @@ func doUnary(c calcpb.CalcServiceClient) {
 
 	resp, err := c.Sum(context.Background(), req)
 	if err != nil {
-		log.Fatalf("error while calling Greet RPC: %v", err)
+		log.Fatalf("error while calling Sum RPC: %v", err)
 	}
 
 	log.Printf("The sum of %d and %d is: %v", first, second, resp.Sum)
+}
+
+func doErrorUnary(c calcpb.CalcServiceClient) {
+	rand.Seed(time.Now().UnixNano())
+	num := -rand.Intn(100)
+
+	doSquareRootCall(int64(num), c)
+}
+
+func doSquareRootUnary(c calcpb.CalcServiceClient) {
+	rand.Seed(time.Now().UnixNano())
+	num := rand.Intn(100)
+
+	doSquareRootCall(int64(num), c)
+}
+
+func doSquareRootCall(num int64, c calcpb.CalcServiceClient) {
+	req := &calcpb.SquareRootRequest{
+		Num: num,
+	}
+
+	resp, err := c.SquareRoot(context.Background(), req)
+	if err == nil {
+		log.Printf("Result of square root of %v is: %v", num, resp.NumberRoot)
+
+		return
+	}
+
+	respErr, ok := status2.FromError(err)
+	if false == ok {
+		log.Fatalf("Fatal error while calling SquareRoot RPC: %v", err)
+	}
+
+	// actual error from gRPC (user error)
+	fmt.Println("Error from server: " + respErr.Message())
+	fmt.Println(respErr.Code())
+	if respErr.Code() == codes.InvalidArgument {
+		fmt.Println("We probably sent a genative number")
+	}
 }
 
 func calcAverage(c calcpb.CalcServiceClient) {
