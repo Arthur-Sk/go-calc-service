@@ -1,12 +1,14 @@
 FROM golang:1.17.3-alpine3.14
 
 RUN apk update && apk add protoc
-RUN go get github.com/golang/protobuf/protoc-gen-go
-
-WORKDIR /go
+RUN go get github.com/golang/protobuf/protoc-gen-go # necessary to generate code from protocol buffers
 
 COPY ./ /go/src/grpc-service
 RUN chmod -R 777 /go/src
-RUN go build -o bin/grpc-service src/grpc-service/main.go
 
-CMD ["./bin/grpc-service"]
+WORKDIR /go/src/grpc-service
+RUN go mod download
+RUN go build -o /go/bin/calc-service calculator/calc_server/server.go
+RUN go build -o /go/bin/greet-service greet/greet_server/server.go
+
+WORKDIR /go

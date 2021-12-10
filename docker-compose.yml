@@ -1,15 +1,30 @@
 version: '3.7'
 services:
-  go-grpc:
+  calc-service:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: golang.grpc-service
-#    ports:
-#      - "8087:80"
+    container_name: calc-service
+    ports:
+      - "50052:50052"
     networks:
       - default
     volumes:
       - ./:/go/src/grpc-service
     environment:
       GOPATH: "/go:/go/src/grpc-service"
+    command:
+      - ./bin/calc-service
+  greet-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: greet-service
+    ports:
+      - "50051:50051"
+    networks:
+      - default
+    environment:
+      GOPATH: "/go:/go/src/greet-service"
+    command:
+      - ./bin/greet-service
