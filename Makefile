@@ -15,3 +15,5 @@ sh:
 generate:
 	docker-compose exec calc-service sh -c "cd src/grpc-service && protoc greet/greetpb/greet.proto --go_out=plugins=grpc:."
 	docker-compose exec calc-service sh -c "cd src/grpc-service && protoc calculator/calcpb/calc.proto --go_out=plugins=grpc:."
+evans:
+	docker-compose exec calc-service evans -p 50052 -r
