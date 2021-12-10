@@ -8,6 +8,8 @@ recreate:
 	docker-compose up -d --build
 ps:
 	docker-compose ps
+logs:
+	docker-compose logs
 sh:
 	docker-compose exec calc-service sh
 generate:

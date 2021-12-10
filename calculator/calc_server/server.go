@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 	"grpc-service/calculator/calcpb"
 	"io"
@@ -148,6 +149,8 @@ func main() {
 
 	s := grpc.NewServer()
 	calcpb.RegisterCalcServiceServer(s, &server{})
+
+	reflection.Register(s)
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v", err)

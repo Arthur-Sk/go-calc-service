@@ -1,7 +1,7 @@
 FROM golang:1.17.3-alpine3.14
 
 RUN apk update && apk add protoc
-RUN go get github.com/golang/protobuf/protoc-gen-go # necessary to generate code from protocol buffers
+RUN go install github.com/golang/protobuf/protoc-gen-go@latest # necessary to generate code from protocol buffers
 
 COPY ./ /go/src/grpc-service
 RUN chmod -R 777 /go/src
