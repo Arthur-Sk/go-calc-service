@@ -12,6 +12,8 @@ import (
 	"log"
 	"math"
 	"net"
+	"os"
+	"os/signal"
 	"time"
 )
 
@@ -142,6 +144,9 @@ func (*server) SquareRoot(ctx context.Context, req *calcpb.SquareRootRequest) (*
 }
 
 func main() {
+	// Get the file name and line number
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	lis, err := net.Listen("tcp", "0.0.0.0:50052")
 	if err != nil {
 		log.Fatalf("Cannot listen: %v", err)
@@ -152,7 +157,26 @@ func main() {
 
 	reflection.Register(s)
 
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve: %v", err)
-	}
+	go func() {
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("Failed to serve: %v", err)
+		}
+	}()
+
+	// End the service gracefully
+
+	// Wait for interrupt signal
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, os.Interrupt)
+
+	// Block until a signal is received
+	<-ch
+
+	fmt.Println("Stoppping the server")
+	s.Stop()
+
+	fmt.Println("Closing the listener")
+	lis.Close()
+
+	fmt.Println("End of Program")
 }
