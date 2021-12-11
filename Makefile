@@ -1,9 +1,12 @@
+.DEFAULT_GOAL := start
+start:
+	make up && make generate && make evans
 up:
 	docker-compose up -d
 down:
 	docker-compose down
 restart:
-	docker-compose down && docker-compose up -d
+	make down && make up
 recreate:
 	docker-compose up -d --build
 ps:
